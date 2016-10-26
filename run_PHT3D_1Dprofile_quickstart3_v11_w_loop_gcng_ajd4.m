@@ -104,14 +104,14 @@ else
     phrq_exe = 'C:\USGS\phreeqc-3.3.7-11094-x64\bin\phreeqc';
 
     % - sim_dir: Directory with input files and where you run simulations
-    sim_dir = 'C:\Users\Owner\Desktop\Arsenic_MN\Test_Models\As_into_Model_09152016\';
+    sim_dir = 'C:\Users\Owner\Desktop\Arsenic_MN\Arsenic_MN_Project\OTT3_Test_Models\Test_Models_10202016';
 
     % - flo_file: MODFLOW flo simulation file (full path)
-    flo_file = 'C:\Users\Owner\Desktop\Arsenic_MN\Test_Models\As_into_Model_09152016\test_AJD_AsMN_50m_50lay_downwardflux.flo';
+    flo_file = 'C:\Users\Owner\Desktop\Arsenic_MN\Arsenic_MN_Project\OTT3_Test_Models\Test_Models_10202016\test_noflow.flo';
 
     % - use_file_databas: geochem database, this is ultimately copied into 
     %   'pht3d_datab.dat' in sim_dir for simulation
-    use_file_databas = 'C:\Users\Owner\Desktop\Arsenic_MN\Test_Models\As_into_Model_09152016\pht3d_datab_As_160605.dat';
+    use_file_databas = 'C:\Users\Owner\Desktop\Arsenic_MN\Arsenic_MN_Project\OTT3_Test_Models\Test_Models_10202016\pht3d_datab_As_160605.dat';
     % ************* (end to CUSTOMIZE TO YOUR COMPUTER!!) *********************
 end
 
@@ -136,15 +136,15 @@ OperSplit = 3; % 2 for reaction step every user-specified time step,
 %       previous to 160920 were OperSplit=2, hard-coded in
 %       PHT3D_ph_f_general5
 
- while(1)
-    ctr=ctr+1;
-    if fl_ReDo
-        % redo with different charge balance, don't advance ctr
-        ctr=ctr-1;
-    end
+%  while(1)
+%     ctr=ctr+1;
+%     if fl_ReDo
+%         % redo with different charge balance, don't advance ctr
+%         ctr=ctr-1;
+%     end
 
 % %Two year binary temperature model.    
-tempC_kin_v = [2 25 2 25];  % for kinetics
+tempC_kin_v = [10];  % for kinetics
 % tempC_kin_v = [25 25 2 25];  % for kinetics
 % tempC_kin_v = [25];  % for kinetics
 tempC_eq_v = [10];  % for equil
@@ -162,31 +162,25 @@ tempC_eq_v = [10];  % for equil
 
     units = 'mol/kgw';
     
-%     timprs=[0:30];
+% %     timprs=[0:30];
+% 
+%     if ctr == 1
+% %         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365*[1:20]];
+% %         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365*[1:5]];
+% %         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365];
+%         timprs=[1 91.25 182.5];
+%     else
+% %         timprs=[0 30 60 90 120 150 180];
+%         timprs=[91.25 182.5];
+%     end 
 
-    if ctr == 1
-%         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365*[1:20]];
-%         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365*[1:5]];
-%         timprs=[0 1 30 60 90 120 150 180 210 240 270 300 330 365];
-        timprs=[1 91.25 182.5];
-    else
-%         timprs=[0 30 60 90 120 150 180];
-        timprs=[91.25 182.5];
-    end
-        
-    %timprs_v=[0:179; 180:359; 360:539; 540:719];
-    %timprs_v=[0:29; 30:59; 60:89; 90:119; 120:149; 150:179; 180:209; 210:239; 240:269; 270:299; 300:329; 330:359];
-    %timprs_v=[0 29; 30 59; 60 89; 90 119; 120 149; 150 179; 180 209; 210 239; 240 269; 270 299; 300 329; 330 359];
-    
-%         timprs=timprs_v(ctr,1:end); 
-
-%timprs = [0 1 90 180 365 365*[2:10]]; % print out times [d]
+timprs = [0 1 90 180 365 365*[2:10]]; % print out times [d]
 %timprs = [0: 1 : 30]; % print out times [d]
 nstp = round(2/182.5*timprs(end));  % number of steps = steps per 182.5 days times total number of days in run
 % nstp = round(10/180*timprs(end));  % often used 50 for longer runs, 10 is faster
 por = 0.39;   % porosity, 0.39 assumed in Smith et al. 2013
 rho_b = 1864; % g/L (bulk density), 1864g/L from Smith et al. 2013
-pe_value = 14;
+pe_value = -2;
 
 fl_Yexch = 1; % 1 to include Y cation exchanger
 
@@ -226,12 +220,12 @@ vert2longdisp = 0.0015; % ratio vertical transverse disp / long dispersivity (Ga
 
 % Domain info ------------------------------------------------------------
 % - Domain parameters (for ba6, dis)
-nlay = 50;
+nlay = 200;
 % nlay = 100;
 % nlay = 50;
 ncol = 1;   
 nrow = 1;
-domain_bot_elev = -50; % m
+domain_bot_elev = -100; % m
 % domain_bot_elev = -100; % m
 domain_top_elev = 0; % top of domain must be at least this elev (include extra space for WT mov't)
 DELR = 100;  DELC = 100; % arbitrary for 1D profile
@@ -386,8 +380,11 @@ fprintf(fid, '        10       500         1         0\n');
 fprintf(fid, '         1    .00001         0\n');
 fclose(fid);
 
-if ctr==1
+%if ctr==1
 
+    %Remember:  sw = Aquitard concentrations
+    %           pw = Aquifer concentrations
+    
 % -- SET INITIAL MODEL CHEMISTRY FOR BTN FILE
 % (Units -- aq: mol/L_w, user-defined immob (e.g. bacteria, napl): mol/L_w, 
 % minerals (and gases?): mol/L_v, exchangers and surfaces: mol/L_v)
@@ -402,7 +399,8 @@ ii = 0;
 ii=ii+1; mob_kin_comp{ii} = 'Orgc'; % ***********************************
 mob_kin_par(1:length(Orgc_log10K),ii) = 10.^Orgc_log10K;
 % mob_kin_ic(:,:,1,ii) = hi_Orgc;
-mob_kin_ic(:,:,:,ii) = hi_Orgc;
+mob_kin_ic(:,:,1:50,ii) = hi_Orgc;
+mob_kin_ic(:,:,51:end,ii) = hi_Orgc;
 
 mob_kin_formula{ii} = 'Orgc -1.0 CH2O 1.0 ';
 n_mob_kin = ii;
@@ -499,7 +497,10 @@ min_eq_comp = cell(n_min_eq_max,1);
 min_eq_ic = zeros(nrow,ncol,nlay,n_min_eq_max); 
 ii = 0;
 ii=ii+1; min_eq_comp{ii} = 'Fe(OH)3(a)'; % ***********************************
-min_eq_ic(:,:,:,ii) = 50e-6*rho_b; % (mol/Lv)
+min_eq_ic(:,:,1:50,ii) = 50e-6*rho_b; % (mol/Lv)
+
+    ii=ii+1; min_eq_comp{ii} = 'Pyrite'; % ***********************************
+    min_eq_ic(:,:,51:end,ii) = 50e-6*rho_b; % (mol/Lv)
 
 % ii=ii+1; min_eq_comp{ii} = 'Gibbsite'; % ***********************************
 % min_eq_ic(:,:,:,ii) = 30e-6*rho_b; % (mol/Lv)
@@ -642,16 +643,17 @@ sel_outlist.gas = [sel_outlist.gas; addl_sel_outlist.gas(:)];
 %         [mob_eq_comp_ic, mob_eq_sw_ic, mob_eq_pw_ic, catex_comp_ic, catex_pw_ic, surf_sp_comp_ic, surf_sp_pw_ic] = ...
 %             As_InitCond_chem_3_gcng_AJD_combined(sim_dir, phrq_exe, tempC_eq, fl_Yexch);
         [mob_eq_comp_ic, mob_eq_sw_ic, mob_eq_pw_ic, catex_comp_ic, catex_pw_ic, surf_sp_comp_ic, surf_sp_pw_ic] = ...
-            As_InitCond_chem_3_gcng_AJD_combined_alter(sim_dir, phrq_exe, tempC_eq, fl_Yexch);
+            As_InitCond_chem_4_AsMN_Ott3(sim_dir, phrq_exe, tempC_eq, fl_Yexch);
 
         for ii = 1: n_mob_eq
             ind = find(strcmp(mob_eq_comp(ii), mob_eq_comp_ic));
         %     mob_eq_const_rech(ii) = mob_eq_sw_ic(ind);
-            mob_eq_ic(:,:,1,ii) = mob_eq_sw_ic(ind);  % BC
+            mob_eq_ic(:,:,1:50,ii) = mob_eq_sw_ic(ind);  % BC
         %     mob_eq_ic(:,:,2:end,ii) = mob_eq_sw_ic(ind); % **** CHANGE THIS BACK TO PW!!! ******
         %     mob_eq_ic(:,:,1,ii) = mob_eq_pw_ic(ind); % **** CHANGE THIS BACK TO SW!!! ******
-            mob_eq_ic(:,:,2:end,ii) = mob_eq_pw_ic(ind);    
+            mob_eq_ic(:,:,51:end,ii) = mob_eq_pw_ic(ind);    
         end
+         
         for ii = 1: n_catex  % cation exchange components (sorption)
             % - Surface boundary: no cation exchangers in sw
             % - Middle bulk of domain
@@ -661,12 +663,14 @@ sel_outlist.gas = [sel_outlist.gas; addl_sel_outlist.gas(:)];
         %     if ~isempty(ind_pwgw)
         %         catex_ic(:,:,ind_pwgw:end,ii) = catex_ic_z(3,ii);                  
         end
-else
-    % for ctr > 1, only change Orgc parameters
-    ii = strcmp(mob_kin_comp, 'Orgc');
-    mob_kin_par(1:length(Orgc_log10K), ii) = 10.^Orgc_log10K;
-    
-end
+
+ 
+% else
+%     % for ctr > 1, only change Orgc parameters
+%     ii = strcmp(mob_kin_comp, 'Orgc');
+%     mob_kin_par(1:length(Orgc_log10K), ii) = 10.^Orgc_log10K;
+%     
+% end
              
 % create _ph file (this added to handle alkalinity)
 fl_catex_toequil = zeros(n_catex); % 0 b/c already equilibrated exchanger
@@ -784,146 +788,147 @@ else
     
     % did not crash, continue...
     fl_ReDo = 0;
-
-
-           %**********OBTAINING NEW INIT COND***************            
-
-    % n_comp_all = [n_mob_kin; n_mob_eq; n_imob_kin; n_min_eq; n_catex]; % old version
-
-    comp_ctr=0;
-
-        for cc = 1: 6
-            dist_ic = zeros(nrow,ncol,nlay,n_comp_all(cc));
-            switch cc
-                case 1
-                    comp_name_i = mob_kin_comp;
-                case 2
-                    comp_name_i = mob_eq_comp;
-                case 3
-                    comp_name_i = imob_kin_comp;
-                case 4
-                    comp_name_i = min_eq_comp;
-                case 5
-                    comp_name_i = catex_comp;
-                case 6 
-                    comp_name_i = surf_comp;
-
-            end 
-
-                    for ss = 1: n_comp_all(cc)
-                comp_ctr = comp_ctr + 1;
-
-                if comp_ctr >= 100
-                    numstr = num2str(comp_ctr);
-                elseif comp_ctr >= 10
-                    numstr = [ '0', num2str(comp_ctr)];
-                else
-                    numstr = [ '00', num2str(comp_ctr)];
-                end
-                fil = ['PHT3D', numstr, '.ACN'];
-    %             [status, result] = system(['dir C:\Users\Owner\Desktop\Arsenic_MN\Test_Models\As_into_Model_20160611\', fil]); 
-    %             if status ~= 0
-    %                 fprintf('No .ACN file found for %s!  Exiting... \n', comp_name_i{ss});
-    %                 return
-    %             end
-                x = load(fil);
-                tmax = length(x)/(ncol*nrow*nlay);
-                data = reshape(x, ncol, nrow, nlay, tmax);  % (ncol,nrow,nlay,ntime);
-                %take final time
-                data = data(:,:,:,end);            
-
-                dist_ic(:,:,:,ss) = permute(data, [2 1 3]); % (nrow,ncol,nlay,n_comp);
-    %             dist_ic(:,:,1,ss) = dist_ic(:,:,2,ss);
-                    end
-
-            switch cc
-                case 1
-                    mob_kin_ic = dist_ic;
-                case 2
-                    mob_eq_ic = dist_ic;
-                case 3
-                    imob_kin_ic = dist_ic;
-                case 4
-                    min_eq_ic = dist_ic;
-                case 5
-                    catex_ic = dist_ic;
-                case 6
-                    surf_ic = dist_ic;
-            end
-        end
-
-    newname=['out_X',num2str(ctr),'.sel'];
-
-    copyfile('out_X.sel', newname)
-
-        newname1 = ['pht3dbtn_1D_', num2str(ctr), '.dat'];
-
-        copyfile('pht3dbtn_1D.dat', newname1)
-
-            newname2=['pht3d_ph_', num2str(ctr), '.dat'];
-
-            copyfile('pht3d_ph.dat', newname2)
-    if fl_gcng, system(['cp -p out.txt out_', num2str(ctr), '.txt']); end
-
-
-        %*************CONCATENATING .SEL FILES******************    
-
-    fclose('all');    
-
-    %  % - read in data
-    outfile = ['out_X',num2str(ctr),'.sel'];
-
-    % formatSpec = '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f';
-
-    ndatalines = length(find(timprs>0)) * (nlay-1); % does not write time=0 nor constant conc BC cells
-
-    if ctr==1
-
-    fid = fopen(outfile);    
-    %     line0 = fscanf(fid, '%c', [1 462]); %reads in column titles
-        line0 = fgets(fid); %reads in first line with column titles
-        col_ti = textscan(line0, '%s'); 
-        col_ti = col_ti{1};
-        n_col_ti = length(col_ti);
-        formatSpec = repmat('%f ', 1, n_col_ti);
-        data1 = cell2mat(textscan(fid, formatSpec, ndatalines)); %reads in data
-    fclose(fid);
-
-    fid1 = fopen('out_Xfinal.sel', 'w');  
-        fprintf(fid1, '%s', line0);    
-    %     fprintf(fid1, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \n\r', data1');
-        fmtstr = repmat('%12g ', 1, n_col_ti);
-        fprintf(fid1, [fmtstr, '\n'], data1');
-        fclose(fid1);
-
-
-    elseif ctr >1
-
-
-       %Array used to make time sequential for 50 layer model run for 180 days
-    %    tim = ones(294,1);
-    %    ntim = 15552000.*tim.*(ctr-1);
-
-       %Array used to make time sequential for 200 layer model run for 180 days
-       tim = ones(ndatalines,1);
-    %    ntim = 15552000.*tim.*(ctr-1);   
-       ntim = (timprs(end)*3600*24).*tim.*(ctr-1);   
-
-    fid = fopen(outfile);
-       data2 = cell2mat(textscan(fid, formatSpec, ndatalines, 'headerLines', 1)); %reads in data
-       data2 = [data2(1:end,1)+ntim, data2(1:end,2:end)]; %Reformats matrix with the correct time
-    fclose(fid);
-
-    fid1 = fopen('out_Xfinal.sel', 'a'); 
-    %     fprintf(fid1, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \n\r', data2');
-        fprintf(fid1, [fmtstr, '\n'], data2');
-        fclose(fid1);   
-    end
-end            
-if ctr==end_ctr
-    return
-end 
 end
+
+
+%            %**********OBTAINING NEW INIT COND***************            
+% 
+%     % n_comp_all = [n_mob_kin; n_mob_eq; n_imob_kin; n_min_eq; n_catex]; % old version
+% 
+%     comp_ctr=0;
+% 
+%         for cc = 1: 6
+%             dist_ic = zeros(nrow,ncol,nlay,n_comp_all(cc));
+%             switch cc
+%                 case 1
+%                     comp_name_i = mob_kin_comp;
+%                 case 2
+%                     comp_name_i = mob_eq_comp;
+%                 case 3
+%                     comp_name_i = imob_kin_comp;
+%                 case 4
+%                     comp_name_i = min_eq_comp;
+%                 case 5
+%                     comp_name_i = catex_comp;
+%                 case 6 
+%                     comp_name_i = surf_comp;
+% 
+%             end 
+% 
+%                     for ss = 1: n_comp_all(cc)
+%                 comp_ctr = comp_ctr + 1;
+% 
+%                 if comp_ctr >= 100
+%                     numstr = num2str(comp_ctr);
+%                 elseif comp_ctr >= 10
+%                     numstr = [ '0', num2str(comp_ctr)];
+%                 else
+%                     numstr = [ '00', num2str(comp_ctr)];
+%                 end
+%                 fil = ['PHT3D', numstr, '.ACN'];
+%     %             [status, result] = system(['dir C:\Users\Owner\Desktop\Arsenic_MN\Test_Models\As_into_Model_20160611\', fil]); 
+%     %             if status ~= 0
+%     %                 fprintf('No .ACN file found for %s!  Exiting... \n', comp_name_i{ss});
+%     %                 return
+%     %             end
+%                 x = load(fil);
+%                 tmax = length(x)/(ncol*nrow*nlay);
+%                 data = reshape(x, ncol, nrow, nlay, tmax);  % (ncol,nrow,nlay,ntime);
+%                 %take final time
+%                 data = data(:,:,:,end);            
+% 
+%                 dist_ic(:,:,:,ss) = permute(data, [2 1 3]); % (nrow,ncol,nlay,n_comp);
+%     %             dist_ic(:,:,1,ss) = dist_ic(:,:,2,ss);
+%                     end
+% 
+%             switch cc
+%                 case 1
+%                     mob_kin_ic = dist_ic;
+%                 case 2
+%                     mob_eq_ic = dist_ic;
+%                 case 3
+%                     imob_kin_ic = dist_ic;
+%                 case 4
+%                     min_eq_ic = dist_ic;
+%                 case 5
+%                     catex_ic = dist_ic;
+%                 case 6
+%                     surf_ic = dist_ic;
+%             end
+%         end
+% 
+%     newname=['out_X',num2str(ctr),'.sel'];
+% 
+%     copyfile('out_X.sel', newname)
+% 
+%         newname1 = ['pht3dbtn_1D_', num2str(ctr), '.dat'];
+% 
+%         copyfile('pht3dbtn_1D.dat', newname1)
+% 
+%             newname2=['pht3d_ph_', num2str(ctr), '.dat'];
+% 
+%             copyfile('pht3d_ph.dat', newname2)
+%     if fl_gcng, system(['cp -p out.txt out_', num2str(ctr), '.txt']); end
+% 
+% 
+%         %*************CONCATENATING .SEL FILES******************    
+% 
+%     fclose('all');    
+% 
+%     %  % - read in data
+%     outfile = ['out_X',num2str(ctr),'.sel'];
+% 
+%     % formatSpec = '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f';
+% 
+%     ndatalines = length(find(timprs>0)) * (nlay-1); % does not write time=0 nor constant conc BC cells
+% 
+%     if ctr==1
+% 
+%     fid = fopen(outfile);    
+%     %     line0 = fscanf(fid, '%c', [1 462]); %reads in column titles
+%         line0 = fgets(fid); %reads in first line with column titles
+%         col_ti = textscan(line0, '%s'); 
+%         col_ti = col_ti{1};
+%         n_col_ti = length(col_ti);
+%         formatSpec = repmat('%f ', 1, n_col_ti);
+%         data1 = cell2mat(textscan(fid, formatSpec, ndatalines)); %reads in data
+%     fclose(fid);
+% 
+%     fid1 = fopen('out_Xfinal.sel', 'w');  
+%         fprintf(fid1, '%s', line0);    
+%     %     fprintf(fid1, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \n\r', data1');
+%         fmtstr = repmat('%12g ', 1, n_col_ti);
+%         fprintf(fid1, [fmtstr, '\n'], data1');
+%         fclose(fid1);
+% 
+% 
+%     elseif ctr >1
+% 
+% 
+%        %Array used to make time sequential for 50 layer model run for 180 days
+%     %    tim = ones(294,1);
+%     %    ntim = 15552000.*tim.*(ctr-1);
+% 
+%        %Array used to make time sequential for 200 layer model run for 180 days
+%        tim = ones(ndatalines,1);
+%     %    ntim = 15552000.*tim.*(ctr-1);   
+%        ntim = (timprs(end)*3600*24).*tim.*(ctr-1);   
+% 
+%     fid = fopen(outfile);
+%        data2 = cell2mat(textscan(fid, formatSpec, ndatalines, 'headerLines', 1)); %reads in data
+%        data2 = [data2(1:end,1)+ntim, data2(1:end,2:end)]; %Reformats matrix with the correct time
+%     fclose(fid);
+% 
+%     fid1 = fopen('out_Xfinal.sel', 'a'); 
+%     %     fprintf(fid1, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \n\r', data2');
+%         fprintf(fid1, [fmtstr, '\n'], data2');
+%         fclose(fid1);   
+%     end
+% end            
+% if ctr==end_ctr
+%     return
+% end 
+%end
  
 fclose('all');
 
